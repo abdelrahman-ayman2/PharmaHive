@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Do Pharmacy{% endblock %}</title>
+
+    <link href="{{ url_for('static', filename='bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+</head>
+<body class="{% block body_class %}{% endblock %}">
+    <nav class="navbar app-navbar navbar-expand-lg">
+        <div class="container app-navbar-container">
+
+            <div class="{% block brand_wrapper_class %}{% endblock %}">
+                <a class="navbar-brand app-brand m-0" href="{{ url_for('core.home') }}">
+                    <span class="app-brand-badge">
+                        <span class="app-brand-dot"></span>
+                        <span>Do pharmacy</span>
+                    </span>
+                </a>
+            </div>
+
+            <div class="ms-auto">
+                {% block navbar_links %}
+                    {% if user %}
+                    <ul class="navbar-nav app-nav-links ms-auto mb-2 mb-lg-0 align-items-lg-center gap-lg-2">
+                        <li class="nav-item">
+                            <a class="nav-link app-nav-link" href="{{ url_for('users.profile', username=user.username) }}">
+                                View profile
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link app-nav-link" href="{{ url_for('account.account') }}">
+                                Account settings
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <form action="{{ url_for('auth.logout') }}" method="POST" class="d-inline">
+                                <input type="hidden" name="csrf_token" value="{{ token() }}">
+                                <button class="btn app-nav-logout-btn" type="submit">
+                                    Logout
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                    {% endif %}
+                {% endblock %}
+            </div>
+        </div>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="container app-alerts">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show rounded-4 shadow-sm border-0" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    {% block body %}{% endblock %}
+
+    <script src="{{ url_for('static', filename='bootstrap.bundle.min.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js.js') }}" defer></script>
+</body>
+</html>

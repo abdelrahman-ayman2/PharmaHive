@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}
+Login
+{% endblock %}
+
+{% block body_class %}auth-body{% endblock %}
+
+{% block navbar_links %}{% endblock %}
+
+{% block brand_wrapper_class %}w-100 text-center{% endblock %}
+
+{% block body %}
+<div class="auth-wrapper">
+  <div class="col-md-4 col-lg-4">
+
+    <div class="card auth-card shadow-lg">
+      <div class="card-body p-4">
+
+        <h3 class="text-center mb-4 fw-bold text-danger">
+          Create Account
+        </h3>
+
+        <form method="POST" action="{{ url_for('auth.register') }}" id="registerForm">
+
+          <input name="csrf_token" id="csrf_token" type="hidden" value="{{ token() }}">
+          
+          <!-- Username -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Username</label>
+            <input
+              required
+              value="{{ form_data.username if form_data else '' }}"
+              name="username"
+              type="text"
+              class="form-control"
+              placeholder="username">
+          </div>
+
+          <!-- Email -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Email address</label>
+            <input
+              required
+              value="{{ form_data.email if form_data else '' }}"
+              name="email"
+              type="email"
+              class="form-control"
+              placeholder="name@example.com">
+          </div>
+
+          <!-- Password -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Password</label>
+
+            <div class="input-group">
+              <input
+                required
+                value="{{ form_data.password if form_data else '' }}"
+                id="password"
+                name="password"
+                type="password"
+                pattern="^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$"
+                title="Password must be at least 8 characters, contain one uppercase letter and one special character"
+                class="form-control"
+                placeholder="••••••••">
+
+              <button
+                class="btn btn-outline-secondary show-password"
+                type="button"
+                id="togglePassword">
+                👁️
+              </button>
+            </div>
+          </div>
+
+          <!-- Confirm Password -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Confirm password</label>
+
+            <div class="input-group">
+              <input
+                required
+                value="{{ form_data.confirm_password if form_data else '' }}"
+                id="confirm_password"
+                name="confirm_password"
+                type="password"
+                pattern="^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$"
+                title="Password must be at least 8 characters, contain one uppercase letter and one special character"
+                class="form-control"
+                placeholder="••••••••">
+
+              <button
+                class="btn btn-outline-secondary show-password"
+                type="button"
+                id="toggleConfirmPassword">
+                👁️
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-danger w-100 mt-3">
+            Register
+          </button>
+
+        </form>
+
+        <p class="text-center mt-4 mb-0">
+          Already have an account?
+          <a href="{{ url_for('auth.login') }}" class="fw-semibold text-danger text-decoration-none">
+            Login
+          </a>
+        </p>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

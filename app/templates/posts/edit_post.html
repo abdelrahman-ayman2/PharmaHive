@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Post | Do pharmacy{% endblock %}
+
+{% block body_class %}app-shell{% endblock %}
+
+{% block body %}
+<div class="container py-4 py-lg-5">
+  <div class="row justify-content-center">
+    <div class="col-xl-8 col-lg-9">
+
+      <section class="app-panel app-hero-panel mb-4 overflow-hidden">
+        <div class="card-body p-4 p-lg-5">
+          <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-4">
+            <div>
+              <div class="app-section-kicker mb-2">Post Editor</div>
+              <h1 class="app-hero-title app-hero-title-sm mb-2">Edit your post</h1>
+              <p class="app-hero-text mb-0">
+                Update your content, refine your message, and save the latest version of your post.
+              </p>
+            </div>
+
+            <div class="app-hero-badge-wrap">
+              <div class="app-hero-badge app-hero-badge-sm">
+                <span class="app-hero-badge-number">{{ post.content|length }}</span>
+                <span class="app-hero-badge-label">current characters</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="app-panel create-post-card">
+        <div class="card-body p-4 p-lg-5">
+
+          <form method="POST" action="{{ url_for('posts.edit', post_id=post.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ token() }}">
+            <input type="hidden" name="next_page" value="{{ request.referrer }}">
+
+            <div class="d-flex align-items-start gap-3">
+              <div class="create-post-avatar">
+                <span>{{ g.user.username[0]|upper if g.user else "👤" }}</span>
+              </div>
+
+              <div class="flex-grow-1">
+                <textarea
+                  name="content"
+                  id="postContent"
+                  class="form-control create-post-textarea textarea"
+                  rows="6"
+                  maxlength="280"
+                  required
+                >{{ post.content }}</textarea>
+
+                <div class="create-post-footer d-flex justify-content-between align-items-center flex-wrap gap-3 mt-3">
+                  <div class="create-post-hint d-flex align-items-center gap-3">
+                    <span>Refine your message before publishing</span>
+                    <span id="charCounter" class="char-counter">{{ post.content|length }} / 280</span>
+                  </div>
+
+                  <div class="d-flex gap-2 flex-wrap">
+                    <a href="{{ request.referrer or url_for('core.home') }}"
+                       class="btn app-secondary-btn">
+                      Cancel
+                    </a>
+
+                    <button type="submit"
+                            id="postBtn"
+                            class="btn app-primary-btn">
+                      Save Changes
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </form>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

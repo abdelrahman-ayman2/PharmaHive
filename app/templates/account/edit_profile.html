@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Profile | Do pharmacy{% endblock %}
+
+{% block body_class %}app-shell{% endblock %}
+
+{% block body %}
+<div class="container py-4 py-lg-5">
+  <div class="row justify-content-center">
+    <div class="col-xl-10">
+
+      <section class="app-panel app-hero-panel mb-4 overflow-hidden">
+        <div class="card-body p-4 p-lg-5">
+          <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-4">
+            <div>
+              <div class="app-section-kicker">Profile Editor</div>
+              <h1 class="app-hero-title app-hero-title-sm mb-2">Update your profile</h1>
+              <p class="app-hero-text mb-0">
+                Edit your public information and keep your account details current and consistent.
+              </p>
+            </div>
+
+            <div class="app-hero-badge-wrap">
+              <div class="app-hero-badge app-hero-badge-sm">
+                <span class="app-hero-badge-number">{{ user.username[0]|upper }}</span>
+                <span class="app-hero-badge-label">profile preview</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="row g-4">
+
+        <!-- Left side / preview -->
+        <div class="col-lg-4">
+          <div class="app-panel app-panel-soft h-100">
+            <div class="app-panel-cover text-center">
+              <div class="app-section-kicker mb-2">Profile Preview</div>
+
+                <div class="account-profile-card text-center">
+                  <div class="profile-avatar account-profile-avatar mx-auto mb-3">
+                    <span>{{ user.username[0]|upper }}</span>
+                  </div>
+
+                  <div class="account-profile-name">{{ user.username }}</div>
+                  <div class="account-profile-email">{{ user.email }}</div>
+
+                  <div class="account-profile-bio">
+                    {{ user.bio if user.bio else "No bio added yet." }}
+                  </div>
+                </div>
+            </div>
+
+            <div class="card-body p-4">
+              <div class="small text-muted mb-2">What you can update here:</div>
+              <ul class="mb-0 ps-3 text-muted small">
+                <li>Username</li>
+                <li>Email address</li>
+                <li>Bio / short description</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right side / form -->
+        <div class="col-lg-8">
+          <div class="app-panel app-panel-soft">
+            <div class="app-panel-cover">
+              <div class="app-section-kicker">Account Settings</div>
+              <h3 class="app-side-title mt-2 mb-2">Profile information</h3>
+              <p class="app-hero-text mb-0" style="font-size: 0.96rem;">
+                Edit your public and contact details below.
+              </p>
+            </div>
+
+            <div class="card-body p-4 p-md-5">
+              <form method="POST" action="{{ url_for('account.edit_profile') }}">
+                <input type="hidden" name="csrf_token" value="{{ token() }}">
+
+                <div class="row g-3">
+
+                  <div class="col-md-6">
+                    <label for="username" class="form-label fw-semibold">Username</label>
+                    <input
+                      type="text"
+                      id="username"
+                      name="username"
+                      class="form-control app-input"
+                      value="{{ form_data.username if form_data else user.username }}"
+                      placeholder="Enter your username"
+                      required
+                    >
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="email" class="form-label fw-semibold">Email address</label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      class="form-control app-input"
+                      value="{{ form_data.email if form_data else user.email }}"
+                      placeholder="Enter your email"
+                      required
+                    >
+                  </div>
+
+                  <div class="col-12">
+                    <label for="bio" class="form-label fw-semibold">Bio</label>
+                    <textarea
+                      id="bio"
+                      name="bio"
+                      class="form-control create-post-textarea textarea"
+                      rows="5"
+                      maxlength="280"
+                      placeholder="Write a short bio about yourself..."
+                    >{{ form_data.bio if form_data else (user.bio if user.bio else '') }}</textarea>
+
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                      <small class="text-muted">Short and clear bios work best</small>
+                      <span class="char-counter">0 / 280</span>
+                    </div>
+                  </div>
+
+                </div>
+
+                <div class="d-flex flex-wrap gap-3 mt-4">
+                  <button type="submit" class="btn app-primary-btn">
+                    Save Changes
+                  </button>
+
+                  <a href="{{ url_for('account.account') }}" class="btn app-secondary-btn">
+                    Cancel
+                  </a>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Profile | Do pharmacy{% endblock %}
+
+{% block body_class %}app-shell users-profile-page{% endblock %}
+
+{% block body %}
+<div class="container py-4 py-lg-5">
+  <div class="row g-4 g-xl-5">
+
+    <!-- Left Sidebar / Profile Info -->
+    <aside class="col-xl-4 col-lg-5">
+      <div class="app-panel app-panel-soft overflow-hidden">
+        <div class="app-panel-cover text-center">
+          <div class="profile-avatar mx-auto mb-3">
+            <span>{{ user.username[0]|upper }}</span>
+          </div>
+
+          <h2 class="profile-name mb-1">{{ user.username }}</h2>
+          <p class="profile-email mb-2">{{ user.email }}</p>
+          <p class="profile-bio mb-0">
+            {{ user.bio if user.bio else "No bio added yet." }}
+          </p>
+        </div>
+
+        <div class="card-body p-4">
+          <div class="profile-meta">
+            <div class="profile-meta-item">
+              <span class="profile-meta-label">Joined</span>
+              <span class="profile-meta-value">{{ user.created_at.strftime('%d %B %Y') }}</span>
+            </div>
+
+            <div class="profile-meta-item">
+              <span class="profile-meta-label">Posts</span>
+              <span class="profile-meta-value">{{ user.posts|length }}</span>
+            </div>
+
+            <div class="profile-meta-item">
+              <span class="profile-meta-label">Profile type</span>
+              <span class="profile-meta-value">Member</span>
+            </div>
+          </div>
+
+          {% if g.user == user %}
+          <div class="d-grid mt-4">
+            <a href="{{ url_for('account.edit_profile') }}" class="btn app-primary-btn">
+              Edit Profile
+            </a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </aside>
+
+    <!-- Right Content -->
+    <main class="col-xl-8 col-lg-7">
+      <section class="app-panel app-hero-panel mb-4 overflow-hidden">
+        <div class="card-body p-4 p-lg-5 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-4">
+          <div>
+            <div class="app-section-kicker">Profile Feed</div>
+            <h3 class="app-hero-title app-hero-title-sm mb-2">Posts by {{ user.username }}</h3>
+            <p class="app-hero-text mb-0">
+              Thoughts, updates, and content shared by this user.
+            </p>
+          </div>
+
+          <div class="app-hero-badge-wrap">
+            <div class="app-hero-badge app-hero-badge-sm">
+              <span class="app-hero-badge-number">{{ user.posts|length }}</span>
+              <span class="app-hero-badge-label">published posts</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="profile-posts-list d-flex flex-column gap-4">
+        {% if user.posts %}
+          {% for post in user.posts %}
+          <article class="app-panel home-post-card">
+            <div class="card-body p-4">
+              <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                <div class="d-flex align-items-start gap-3">
+                  <div class="create-post-avatar post-mini-avatar">
+                    <span>{{ user.username[0]|upper }}</span>
+                  </div>
+
+                  <div>
+                    <div class="post-author">{{ user.username }}</div>
+                    <div class="post-date">{{ post.created_at.strftime('%b %d, %Y at %I:%M %p') }}</div>
+                  </div>
+                </div>
+
+                {% if g.user.id == post.user_id %}
+                <div class="dropdown">
+                  <button class="btn post-menu-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    ⋮
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-end border-0 shadow rounded-4">
+                    <li>
+                      <a class="dropdown-item" href="{{ url_for('posts.edit', post_id=post.id) }}">
+                        Edit
+                      </a>
+                    </li>
+                    <li>
+                      <form method="POST" action="{{ url_for('posts.delete', post_id=post.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ token() }}">
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <button type="submit" class="dropdown-item text-danger">
+                          Delete post
+                        </button>
+                      </form>
+                    </li>
+                  </ul>
+                </div>
+                {% endif %}
+              </div>
+
+              <div class="post-content mb-3">
+                {{ post.content }}
+              </div>
+
+              <div class="post-footer d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div class="d-flex gap-2 flex-wrap">
+                  <button class="btn app-chip-btn" type="button" disabled>Like</button>
+                  <button class="btn app-chip-btn" type="button" disabled>Comment</button>
+                </div>
+              </div>
+            </div>
+          </article>
+          {% endfor %}
+        {% else %}
+          <div class="app-panel profile-empty-card">
+            <div class="card-body p-5 text-center">
+              <div class="profile-empty-icon mb-3">📝</div>
+              <h4 class="profile-empty-title">No posts yet</h4>
+              <p class="profile-empty-text mb-0">
+                This user has not published any posts yet.
+              </p>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </main>
+
+  </div>
+</div>
+{% endblock %}
