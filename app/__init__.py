@@ -37,10 +37,6 @@ def create_app():
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
         return response
-    
-    @app.route("/test")
-    def test():
-        abort(500)
 
     error_handler(app)
 
