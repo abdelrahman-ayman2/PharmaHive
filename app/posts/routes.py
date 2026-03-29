@@ -1,4 +1,4 @@
-from flask import Blueprint, redirect, g, url_for, request, flash, render_template, session
+from flask import Blueprint, redirect, g, url_for, request, flash, render_template, abort
 from ..core.decorators import login_required
 from ..core.helpers import valid_length, is_safe_url
 from ..models.post import Post
@@ -43,8 +43,8 @@ def delete(post_id):
     post = Post.query.get_or_404(post_id)
 
     if g.user.id != post.user_id:
-        flash("You are not allowed to delete this post.", "danger")
-        return redirect(url_for("core.home"))
+        abort(403)
+        
     try:
         db.session.delete(post)
         db.session.commit()

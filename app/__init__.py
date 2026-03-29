@@ -1,9 +1,10 @@
 #python 
-from flask import Flask
+from flask import Flask, abort
 #my functions
 from .config import Config
 from .extensions import db, migrate
 from .security.csrf import init_csrf
+from .core.errors import error_handler
 #blue print
 from .auth.routes import auth_bp
 from .account.routes import account_bp
@@ -36,6 +37,12 @@ def create_app():
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
         return response
+    
+    @app.route("/test")
+    def test():
+        abort(500)
+
+    error_handler(app)
 
     init_csrf(app)
 

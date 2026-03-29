@@ -11,7 +11,3 @@ def home():
     posts = Post.query.order_by(Post.created_at.desc()).all()
     user = g.user
     return render_template('core/home.html', posts=posts, user=user)
-
-@core_bp.route("/error")
-def error():
-    return render_template("errors/error.html")
