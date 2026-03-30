@@ -104,7 +104,7 @@
                     <li>
                       <form method="POST" action="{{ url_for('posts.delete', post_id=post.id) }}">
                         <input type="hidden" name="csrf_token" value="{{ token() }}">
-                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <input type="hidden" name="next_page" value="{{ request.path }}">
                         <button type="submit" class="dropdown-item text-danger">
                           Delete post
                         </button>

@@ -1,4 +1,5 @@
 from flask import Blueprint, redirect, g, url_for, request, flash, render_template, abort
+from urllib.parse import urlparse
 from ..core.decorators import login_required
 from ..core.helpers import valid_length, is_safe_url
 from ..models.post import Post
@@ -42,6 +43,11 @@ def delete(post_id):
 
     post = Post.query.get_or_404(post_id)
 
+    next_page = request.form.get("next_page")
+
+    if not next_page or not is_safe_url(next_page):
+        next_page = url_for("core.home")
+
     if g.user.id != post.user_id:
         abort(403)
         
@@ -51,14 +57,8 @@ def delete(post_id):
     except Exception:
         db.session.rollback()
         flash("Something went wrong while deleting the post.", "danger")
-        return redirect(url_for("core.home"))
-
-
-    next_page = request.form.get("next_page")
-
-    if not next_page or not is_safe_url(next_page):
-            next_page = url_for("core.home")
-
+        return redirect(next_page)
+    
     flash("Post deleted successfully.", "success")
     return redirect(next_page)
 
@@ -72,7 +72,9 @@ def edit(post_id):
     
     if request.method == 'POST':
         content = request.form.get("content", "").strip()
-        next_page = request.form.get("next_page")
+        referrer = request.form.get("next_page")
+
+        next_page = urlparse(referrer).path if referrer else None
 
         if not next_page or not is_safe_url(next_page):
             next_page = url_for("core.home")
