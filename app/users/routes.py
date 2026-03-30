@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, abort
 from ..core.decorators import login_required
 from ..models.user import User
 
-users_bp = Blueprint('users', __name__, url_prefix='/users')
+users_bp = Blueprint('users', __name__, url_prefix='/u')
 
 @users_bp.route('/<username>')
 @login_required
