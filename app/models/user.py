@@ -16,7 +16,7 @@ class User(db.Model):
 
     password_hash = db.Column(db.String(255), nullable=False)
 
-    posts = db.relationship("Post", back_populates="user", order_by="desc(Post.created_at)")
+    posts = db.relationship("Post", back_populates="user", cascade="all, delete-orphan", order_by="desc(Post.created_at)")
 
     __table_args__ = (
         db.Index("uq_users_username", "username", unique=True),

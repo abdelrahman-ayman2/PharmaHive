@@ -134,9 +134,11 @@ def delete_account():
         try:
             db.session.delete(user)
             db.session.commit()
+
             session.clear()
             flash("Account deleted successfully", "success")
             return redirect(url_for("auth.login"))
+        
         except Exception:
             db.session.rollback()
             flash("Something went wrong while deleting the account.", "danger")
