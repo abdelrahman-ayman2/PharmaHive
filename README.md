@@ -85,3 +85,14 @@ python run.py
 
 The application will run on http://127.0.0.1:5000
 ```
+
+---
+
+## Future Improvements
+
+- Add post interactions, including likes and comments
+- Create an About page
+- Implement role-based access control for admin features
+- Add a notification system
+- Support password reset functionality
+- Convert the application into a REST API
