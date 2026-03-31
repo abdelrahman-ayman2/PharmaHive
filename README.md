@@ -66,12 +66,14 @@ DATABASE_URL=your_database_url
 FLASK_ENV=development
 ```
 
+---
+
 ## Run Locally
 
 After setting up the `.env` file, run the following commands:
 
 ```bash
-git clone https://github.com/abdelrahman-ayman2/pharmahive.git
+git clone https://github.com/abdelrahman-ayman2/PharmaHive.git
 cd pharmahive
 
 python -m venv venv
@@ -80,3 +82,6 @@ venv\Scripts\activate
 pip install -r requirements.txt
 
 python run.py
+
+The application will run on http://127.0.0.1:5000
+```
