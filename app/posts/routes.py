@@ -3,6 +3,7 @@ from urllib.parse import urlparse
 from ..core.decorators import login_required
 from ..core.helpers import valid_length, is_safe_url
 from ..models.post import Post
+from ..models.like import Like
 from ..extensions import db
 from sqlalchemy.exc import IntegrityError
 
@@ -100,4 +101,28 @@ def edit(post_id):
         return redirect(next_page)
     
     return render_template("posts/edit_post.html", post=post, user=g.user)
+
+@posts_bp.route('/<int:post_id>/like', methods=['POST'])
+@login_required
+def like(post_id):
+    post = db.session.get(Post, post_id)
+    if post is None:
+        abort(404) 
+
+    user = g.user
+    like = db.session.get(Like, (post.id, user.id))
+
+    if like is not None:
+        db.session.delete(like)
+        post.likes_count -= 1
+    else:
+        like = Like(post_id=post.id, user_id=user.id)
+        db.session.add(like)
+        post.likes_count += 1
+
+    db.session.commit()
+
+    return {
+        "likes_count": post.likes_count
+    }
 

@@ -15,7 +15,7 @@ def init_csrf(app):
     @app.before_request
     def csrf_protect():
         if request.method in ("POST", "PUT", "PATCH", "DELETE"):
-            token = request.form.get('csrf_token', '')
+            token = request.form.get('csrf_token', '') or request.headers.get("X-CSRFToken", "")
             session_token = session.get("csrf_token")
 
             if not token or not session_token or token != session_token:
