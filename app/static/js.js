@@ -2,7 +2,7 @@ const buttons = document.querySelectorAll(".show-password");
 
 buttons.forEach((e) => {
     e.addEventListener("click", showpassword);
-})
+});
 
 function showpassword() {
     let pass1 = document.getElementById("password");
@@ -87,3 +87,33 @@ textareas.forEach((textarea, index) => {
         }
     });
 });
+
+const likes =  document.querySelectorAll(".like_update");
+const csrfToken = document
+  .querySelector('meta[name="csrf-token"]')
+  .getAttribute("content");
+
+likes.forEach((e) => {
+    e.addEventListener("click", like_update);
+});
+
+function like_update(event) {
+    const button = event.currentTarget;
+    const postId = button.dataset.postId;
+
+    button.disabled = true;
+
+    fetch(`/posts/${postId}/like`, {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": csrfToken
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById(`likes-${postId}`).innerText = data.likes_count;
+    })
+    .finally(() => {
+        button.disabled = false;
+    });
+}

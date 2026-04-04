@@ -177,8 +177,11 @@
               </div>
 
               <div class="post-footer d-flex justify-content-between align-items-center flex-wrap gap-3">
-                <div class="d-flex gap-2 flex-wrap">
-                  <button class="btn app-chip-btn" type="button" disabled>Like</button>
+                <div class="d-flex gap-2 flex-wrap align-items-center">
+                  <button class="btn app-chip-btn like_update" data-post-id="{{ post.id }}">Like</button>
+                  <meta name="csrf-token" content="{{ token() }}">
+                  <span class="post-like-count" id="likes-{{ post.id }}">{{ post.likes_count }}</span>
+                  
                   <button class="btn app-chip-btn" type="button" disabled>Comment</button>
                 </div>
               </div>
