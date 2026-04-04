@@ -1,4 +1,5 @@
 from datetime import datetime
+from sqlalchemy import text
 from app.extensions import db
 
 class Post(db.Model):
@@ -8,7 +9,9 @@ class Post(db.Model):
     
     content = db.Column(db.Text, nullable=False)
 
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    likes_count = db.Column(db.Integer, server_default=text("0"), nullable=False)
+
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, index=True)
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False, index=True)
 
