@@ -92,9 +92,13 @@ The application will run on http://127.0.0.1:5000
 
 ## Future Improvements
 
-- Add comments on posts
-- Create an About page
-- Implement role-based access control for admin features
-- Add a notification system
-- Support password reset functionality
-- Convert the application into a REST API
+- Add a comments system for post interactions
+- Build an About page
+- Develop an admin panel with role-based access control
+- Implement a notification system
+- Support secure password reset via OTP
+- Add rate limiting to protect authentication and posting endpoints
+- Allow guest browsing with limited permissions
+- Introduce caching for better performance and scalability
+- Expose the application as a REST API
+- Improve long-text wrapping and overall content readability in the UI
