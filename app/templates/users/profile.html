@@ -74,59 +74,10 @@
       </section>
 
       <div class="profile-posts-list d-flex flex-column gap-4">
+      <meta name="csrf-token" content="{{ token() }}">
         {% if user.posts %}
           {% for post in user.posts %}
-          <article class="app-panel home-post-card">
-            <div class="card-body p-4">
-              <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
-                <div class="d-flex align-items-start gap-3">
-                  <div class="create-post-avatar post-mini-avatar">
-                    <span>{{ user.username[0]|upper }}</span>
-                  </div>
-
-                  <div>
-                    <div class="post-author">{{ user.username }}</div>
-                    <div class="post-date">{{ post.created_at.strftime('%b %d, %Y at %I:%M %p') }}</div>
-                  </div>
-                </div>
-
-                {% if g.user.id == post.user_id %}
-                <div class="dropdown">
-                  <button class="btn post-menu-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    ⋮
-                  </button>
-                  <ul class="dropdown-menu dropdown-menu-end border-0 shadow rounded-4">
-                    <li>
-                      <a class="dropdown-item" href="{{ url_for('posts.edit', post_id=post.id) }}">
-                        Edit
-                      </a>
-                    </li>
-                    <li>
-                      <form method="POST" action="{{ url_for('posts.delete', post_id=post.id) }}">
-                        <input type="hidden" name="csrf_token" value="{{ token() }}">
-                        <input type="hidden" name="next_page" value="{{ request.path }}">
-                        <button type="submit" class="dropdown-item text-danger">
-                          Delete post
-                        </button>
-                      </form>
-                    </li>
-                  </ul>
-                </div>
-                {% endif %}
-              </div>
-
-              <div class="post-content mb-3">
-                {{ post.content }}
-              </div>
-
-              <div class="post-footer d-flex justify-content-between align-items-center flex-wrap gap-3">
-                <div class="d-flex gap-2 flex-wrap">
-                  <button class="btn app-chip-btn" type="button" disabled>Like</button>
-                  <button class="btn app-chip-btn" type="button" disabled>Comment</button>
-                </div>
-              </div>
-            </div>
-          </article>
+            {% include "partials/_post.html" %}
           {% endfor %}
         {% else %}
           <div class="app-panel profile-empty-card">
