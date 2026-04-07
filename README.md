@@ -12,16 +12,18 @@ https://pharmahive.xyz
 ## Features
 
 - User authentication system (register, login, logout)
-- Profile management (edit username, email, and bio)
+- Profile management (update username, email, and bio)
 - Secure password change with current password verification
 - Account deletion with password confirmation
 - Public user profiles displaying:
   - Username, email, bio, and account creation date
   - Total number of posts
   - All posts created by the user
-- Authorization system to ensure users can only modify their own data
-- Create and publish posts from the home page
-- Global feed displaying posts from all users
+- Authorization checks to ensure users can only manage their own account and posts
+- Create, edit, and delete posts
+- Global community feed displaying posts from all users
+- Post like/unlike functionality
+- Persistent like count for each post
 
 ---
 
@@ -90,9 +92,13 @@ The application will run on http://127.0.0.1:5000
 
 ## Future Improvements
 
-- Add post interactions, including likes and comments
-- Create an About page
-- Implement role-based access control for admin features
-- Add a notification system
-- Support password reset functionality
-- Convert the application into a REST API
+- Add a comments system for post interactions
+- Build an About page
+- Develop an admin panel with role-based access control
+- Implement a notification system
+- Support secure password reset via OTP
+- Add rate limiting to protect authentication and posting endpoints
+- Allow guest browsing with limited permissions
+- Introduce caching for better performance and scalability
+- Expose the application as a REST API
+- Improve long-text wrapping and overall content readability in the UI
