@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}
+verify otp
+{% endblock %}
+
+{% block body_class %}auth-body{% endblock %}
+
+{% block navbar_links %}{% endblock %}
+
+{% block brand_wrapper_class %}w-100 text-center{% endblock %}
+
+{% block body %}
+<div class="auth-wrapper">
+  <div class="col-md-4 col-lg-4">
+
+    <div class="card auth-card shadow-lg">
+      <div class="card-body p-4">
+
+        <h3 class="text-center mb-3 fw-bold text-danger">
+          Verify Code
+        </h3>
+
+        <p class="text-center text-muted mb-4">
+          Enter the 6-digit code sent to your email.
+        </p>
+
+        <form method="POST" action="{{ url_for('auth.verify_otp') }}">
+            <input name="csrf_token" type="hidden" value="{{ token() }}">
+            <input type="hidden" name="otp" id="otp">
+
+            <div class="d-flex justify-content-between gap-2 mb-4">
+                <input type="text" class="form-control text-center otp-input" maxlength="1" inputmode="numeric" required autocomplete="one-time-code">
+                <input type="text" class="form-control text-center otp-input" maxlength="1" inputmode="numeric" required>
+                <input type="text" class="form-control text-center otp-input" maxlength="1" inputmode="numeric" required>
+                <input type="text" class="form-control text-center otp-input" maxlength="1" inputmode="numeric" required>
+                <input type="text" class="form-control text-center otp-input" maxlength="1" inputmode="numeric" required>
+                <input type="text" class="form-control text-center otp-input" maxlength="1" inputmode="numeric" required>
+            </div>
+
+            <button type="submit" class="btn btn-danger w-100 mt-3">
+                Verify Code
+            </button>
+        </form>
+
+        <p class="text-center mt-4 mb-0">
+          Didn’t receive a code?
+          <a href="{{ url_for('auth.forgot_password') }}" class="fw-semibold text-danger text-decoration-none">
+            Resend
+          </a>
+        </p>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
