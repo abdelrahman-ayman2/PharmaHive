@@ -22,7 +22,7 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
 
-    from .models import user, post
+    from .models import user, post, like, otp
     
     app.register_blueprint(core_bp)
     app.register_blueprint(auth_bp)
