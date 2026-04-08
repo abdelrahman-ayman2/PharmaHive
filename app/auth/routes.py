@@ -145,8 +145,9 @@ def forgot_password():
         
             flash("If an account with that email exists, a verification code has been sent.", "info")
             return redirect(url_for("auth.verify_otp"))
-        except Exception:
+        except Exception as e:
             db.session.rollback()
+            print("FORGOT ERROR:", repr(e))
             flash("Something went wrong. Please try again.", "danger")
             return render_template("auth/forgot_password.html"), 500
         

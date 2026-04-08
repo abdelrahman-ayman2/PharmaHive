@@ -32,9 +32,14 @@ def send_otp_email(receiver_email):
 
     text = f"Subject: {subject}\n\n{message}"
 
-    with smtplib.SMTP("smtp.gmail.com", 587) as server:
-        server.starttls()
-        server.login(sender_email, app_password)
-        server.sendmail(sender_email, receiver_email, text)
+    try:
+        with smtplib.SMTP("smtp.gmail.com", 587, timeout=20) as server:
+            server.starttls()
+            server.login(sender_email, app_password)
+            server.sendmail(sender_email, receiver_email, text)
 
-    return otp_code
+        return otp_code
+    
+    except Exception as e:
+        print("EMAIL ERROR:", repr(e))
+        raise
