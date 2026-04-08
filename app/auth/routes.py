@@ -7,7 +7,8 @@ from sqlalchemy.exc import IntegrityError
 from ..core.decorators import login_required
 from ..extensions import db
 from ..models.user import User
-from ..core.helpers import valid_length
+from ..models.otp import Otp
+from ..core.helpers import valid_length, send_otp_email
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -122,3 +123,39 @@ def logout():
     session.clear()
     flash("Logged out successfully.", "success")
     return redirect(url_for('auth.login'))
+
+@auth_bp.route("/forgot-password", methods=['POST', 'GET']) 
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form.get("email")
+        user = User.query.filter_by(email=email).first()
+
+        try:
+            if user is not None:
+                otp = send_otp_email(email)
+                session["otp-email"] = email
+
+                new_otp = Otp(
+                    otp=otp,
+                    user_id=user.id
+                )
+
+                db.session.add(new_otp)
+                db.session.commit()
+        
+            flash("If an account with that email exists, a verification code has been sent.", "info")
+            return redirect(url_for("auth.verify_otp"))
+        except Exception:
+            db.session.rollback()
+            flash("Something went wrong. Please try again.", "danger")
+            return render_template("auth/forgot_password.html"), 500
+        
+    return render_template('auth/forgot_password.html')
+
+@auth_bp.route("/verify-otp", methods=['POST', 'GET']) 
+def verify_otp():
+    return render_template('auth/verify_otp.html')
+
+@auth_bp.route("/reset-password", methods=['POST', 'GET']) 
+def reset_password():
+    return render_template('auth/set_new_password.html')
