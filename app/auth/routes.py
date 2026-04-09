@@ -133,7 +133,7 @@ def forgot_password():
         try:
             if user is not None:
                 otp = send_otp_email(email)
-                session["otp-email"] = email
+                session["otp_email"] = email
 
                 new_otp = Otp(
                     otp=otp,

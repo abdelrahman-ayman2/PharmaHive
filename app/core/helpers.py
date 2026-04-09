@@ -1,6 +1,6 @@
 from urllib.parse import urlparse
 import secrets
-import smtplib
+import resend
 import os
 from dotenv import load_dotenv
 
@@ -19,27 +19,32 @@ def generate_otp(length=6):
     return ''.join(str(secrets.randbelow(10)) for _ in range(length))
 
 def send_otp_email(receiver_email):
-    sender_email = os.getenv("EMAIL_USER")
-    app_password = os.getenv("EMAIL_PASS")
+    api_key = os.getenv("RESEND_API_KEY")
+    if not api_key:
+        raise ValueError("RESEND_API_KEY is missing from environment variables.")
 
-    if not sender_email or not app_password:
-        raise ValueError("Email credentials are missing from environment variables.")
+    resend.api_key = api_key
 
     otp_code = generate_otp()
 
-    subject = "Your OTP Code"
-    message = f"Your OTP code is: {otp_code}\nThis code will expire in 7 minutes."
-
-    text = f"Subject: {subject}\n\n{message}"
+    html_content = f"""
+    <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+        <h2>PharmaHive Verification</h2>
+        <p>Your OTP code is:</p>
+        <h1 style="letter-spacing: 2px;">{otp_code}</h1>
+        <p>This code will expire in 7 minutes.</p>
+    </div>
+    """
 
     try:
-        with smtplib.SMTP("smtp.gmail.com", 587, timeout=20) as server:
-            server.starttls()
-            server.login(sender_email, app_password)
-            server.sendmail(sender_email, receiver_email, text)
-
+        response = resend.Emails.send({
+            "from": "PharmaHive <noreply@mail.pharmahive.xyz>",
+            "to": [receiver_email],
+            "subject": "Your OTP Code",
+            "html": html_content
+        })
         return otp_code
-    
+
     except Exception as e:
         print("EMAIL ERROR:", repr(e))
         raise
