@@ -1,104 +1,171 @@
 # PharmaHive
 
-PharmaHive is a secure Flask-based social web application designed for the pharmacy community, focusing on backend architecture and security best practices.
+PharmaHive is a secure Flask-based social web application designed for the pharmacy community, with a strong focus on backend architecture and security best practices.
 
-## Live Demo
+---
+
+## 🌐 Live Demo
+
 https://pharmahive.xyz
 
-**Deployment:** Hosted on Render with PostgreSQL database (Supabase)
+**Deployment:** Hosted on Render with PostgreSQL (Supabase)
 
 ---
 
-## Features
+## 🚀 Features
 
-- User authentication system (register, login, logout)
-- Profile management (update username, email, and bio)
-- Secure password change with current password verification
-- Account deletion with password confirmation
-- Public user profiles displaying:
-  - Username, email, bio, and account creation date
-  - Total number of posts
-  - All posts created by the user
-- Authorization checks to ensure users can only manage their own account and posts
-- Create, edit, and delete posts
-- Global community feed displaying posts from all users
-- Post like/unlike functionality
-- Persistent like count for each post
+* User authentication system (register, login, logout)
+* Profile management (update username, email, and bio)
+* Secure password change with current password verification
+* Account deletion with password confirmation
+* Public user profiles displaying:
 
----
-
-## Security Features
-
-- Custom CSRF protection implemented without external libraries
-- Secure session management:
-  - HttpOnly cookies
-  - SameSite=Lax policy
-  - Secure cookies over HTTPS
-- Strict Content Security Policy (CSP) configuration to mitigate XSS attacks
-- Security headers:
-  - X-Content-Type-Options (nosniff)
-  - X-Frame-Options (DENY)
-  - Referrer-Policy (strict-origin-when-cross-origin)
-- Password hashing using Werkzeug security utilities
-- Input validation and form handling
-- Authentication and authorization to ensure users can only access and modify their own data
-- Protection against open redirects
+  * Username, email, bio, and account creation date
+  * Total number of posts
+  * All posts created by the user
+* Authorization checks to ensure users can only manage their own data
+* Create, edit, and delete posts
+* Global community feed displaying posts from all users
+* Post like/unlike functionality
+* Persistent like count for each post
 
 ---
 
-## Tech Stack
+## 🔐 Security Features
 
-- Python
-- Flask
-- SQLAlchemy (ORM)
-- PostgreSQL (via Supabase)
-- Flask-Migrate (database migrations)
-- Jinja2 (templating)
-- Bootstrap (UI)
+* Custom CSRF protection (implemented manually without external libraries)
+* Secure session configuration:
+
+  * HttpOnly cookies
+  * SameSite=Lax
+  * Secure cookies over HTTPS
+* Strict Content Security Policy (CSP) to mitigate XSS
+* Security headers:
+
+  * X-Content-Type-Options (nosniff)
+  * X-Frame-Options (DENY)
+  * Referrer-Policy (strict-origin-when-cross-origin)
+* Password hashing using Werkzeug
+* Input validation and safe form handling
+* Protection against open redirects
+* Authorization logic to enforce user ownership of resources
 
 ---
 
-## Environment Variables
+## ✉️ Email Service
 
-Create a `.env` file in the project root and add the following variables:
+PharmaHive uses **Resend** for sending emails (OTP verification, password reset, etc.).
+
+> ⚠️ Make sure your domain (e.g. `mail.pharmahive.xyz`) is verified in Resend before testing email features.
+
+---
+
+## 🛠️ Tech Stack
+
+* Python
+* Flask
+* SQLAlchemy (ORM)
+* PostgreSQL (Supabase)
+* Flask-Migrate (Alembic)
+* Jinja2
+* Bootstrap
+* Resend (Email service)
+
+---
+
+## ⚙️ Environment Variables
+
+Create a `.env` file in the root directory:
 
 ```env
 SECRET_KEY=your_secret_key
 DATABASE_URL=your_database_url
+RESEND_API_KEY=your_resend_api_key
 FLASK_ENV=development
 ```
 
 ---
 
-## Run Locally
+## 🚀 Run Locally
 
-After setting up the `.env` file, run the following commands:
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/abdelrahman-ayman2/PharmaHive.git
-cd pharmahive
-
-python -m venv venv
-venv\Scripts\activate
-
-pip install -r requirements.txt
-
-python run.py
-
-The application will run on http://127.0.0.1:5000
+cd PharmaHive
 ```
 
 ---
 
-## Future Improvements
+### 2. Create a virtual environment
 
-- Add a comments system for post interactions
-- Build an About page
-- Develop an admin panel with role-based access control
-- Implement a notification system
-- Support secure password reset via OTP
-- Add rate limiting to protect authentication and posting endpoints
-- Allow guest browsing with limited permissions
-- Introduce caching for better performance and scalability
-- Expose the application as a REST API
-- Improve long-text wrapping and overall content readability in the UI
+```bash
+python -m venv venv
+```
+
+#### Activate it:
+
+* **Windows:**
+
+```bash
+venv\Scripts\activate
+```
+
+* **Mac/Linux:**
+
+```bash
+source venv/bin/activate
+```
+
+---
+
+### 3. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+### 4. Set up environment variables
+
+Create a `.env` file as shown above.
+
+---
+
+### 5. Run database migrations
+
+```bash
+flask db upgrade
+```
+
+---
+
+### 6. Run the application
+
+```bash
+python run.py
+```
+
+---
+
+### 7. Open in browser
+
+```
+http://127.0.0.1:5000
+```
+
+---
+
+## 🔮 Future Improvements
+
+* Comments system for posts
+* About page
+* Admin panel with role-based access control
+* Notification system
+* Secure password reset via OTP (fully implemented with rate limiting)
+* Rate limiting for auth endpoints
+* Guest browsing support
+* Caching for performance
+* REST API version (possibly FastAPI)
+* UI/UX improvements for content readability
