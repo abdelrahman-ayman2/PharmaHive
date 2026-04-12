@@ -891,7 +891,15 @@ aside {
     top: 20px;
 }
 .sidebar-sticky {
-    position: sticky;
-    top: 100px;
-    align-self: flex-start;
+    position: static;
+}
+
+@media (min-width: 992px) {
+    .sidebar-sticky {
+        position: sticky;
+        top: 100px;
+        align-self: flex-start;
+        max-height: 100vh;
+        overflow-y: auto;
+    }
 }
