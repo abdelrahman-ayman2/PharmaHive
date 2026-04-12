@@ -1,4 +1,5 @@
 from urllib.parse import urlparse
+from datetime import datetime
 import secrets
 import resend
 import os
@@ -48,3 +49,13 @@ def send_otp_email(receiver_email):
     except Exception as e:
         print("EMAIL ERROR:", repr(e))
         raise
+def is_valid_otp(otp):
+    now =  datetime.utcnow()
+
+    if not otp:
+        return False
+    
+    if otp.expires_at < now:
+        return False
+
+    return True

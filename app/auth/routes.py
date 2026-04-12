@@ -2,13 +2,14 @@
 from flask import Blueprint, redirect, render_template, request, session, url_for, flash
 from werkzeug.security import check_password_hash, generate_password_hash
 import re
+import secrets
 from sqlalchemy.exc import IntegrityError
 #my functions
 from ..core.decorators import login_required
 from ..extensions import db
 from ..models.user import User
 from ..models.otp import Otp
-from ..core.helpers import valid_length, send_otp_email
+from ..core.helpers import valid_length, send_otp_email, is_valid_otp
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -135,6 +136,8 @@ def forgot_password():
                 otp = send_otp_email(email)
                 session["otp_email"] = email
 
+                Otp.query.filter_by(user_id=user.id).delete()
+
                 new_otp = Otp(
                     otp=otp,
                     user_id=user.id
@@ -155,6 +158,48 @@ def forgot_password():
 
 @auth_bp.route("/verify-otp", methods=['POST', 'GET']) 
 def verify_otp():
+    if request.method == 'POST':
+        input_otp = request.form.get("otp")
+
+        if not input_otp:
+            flash("Please enter the verification code.", "danger")
+            return render_template("auth/verify_otp.html")
+
+        email = session.get("otp_email")
+            
+        if not email:
+            flash("Invalid or expired code", "danger")
+            return render_template("auth/verify_otp.html")
+        
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            flash("Invalid or expired code", "danger")
+            return render_template("auth/verify_otp.html")
+
+        db_otp = Otp.query.filter_by(user_id=user.id).first()
+            
+        if not is_valid_otp(db_otp):
+            flash("Invalid or expired code", "danger")
+            return render_template("auth/verify_otp.html")
+        
+        if db_otp.otp != input_otp:
+            flash("Invalid or expired code", "danger")
+            return render_template("auth/verify_otp.html")
+        
+        try:
+            db.session.delete(db_otp)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            print("VERIFY ERROR:", repr(e))
+            flash("Something went wrong. Please try again.", "danger")
+            return render_template("auth/verify_otp.html"), 500
+        
+        session["reset_token"] = secrets.token_urlsafe(32)
+
+        flash("Code verified successfully.", "success")
+        return redirect(url_for("auth.reset_password"))
+    
     return render_template('auth/verify_otp.html')
 
 @auth_bp.route("/reset-password", methods=['POST', 'GET']) 
