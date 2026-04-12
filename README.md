@@ -18,6 +18,8 @@ https://pharmahive.xyz
 * Profile management (update username, email, and bio)
 * Secure password change with current password verification
 * Account deletion with password confirmation
+* Password reset via OTP verification
+* Reset session expiry for secure password recovery
 * Public user profiles displaying:
 
   * Username, email, bio, and account creation date
@@ -163,7 +165,6 @@ http://127.0.0.1:5000
 * About page
 * Admin panel with role-based access control
 * Notification system
-* Secure password reset via OTP (fully implemented with rate limiting)
 * Rate limiting for auth endpoints
 * Guest browsing support
 * Caching for performance
