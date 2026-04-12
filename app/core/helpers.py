@@ -49,6 +49,7 @@ def send_otp_email(receiver_email):
     except Exception as e:
         print("EMAIL ERROR:", repr(e))
         raise
+    
 def is_valid_otp(otp):
     now =  datetime.utcnow()
 
