@@ -1,8 +1,9 @@
 #python 
-from flask import Flask, abort
+from flask import Flask
+from werkzeug.middleware.proxy_fix import ProxyFix
 #my functions
 from .config import Config
-from .extensions import db, migrate
+from .extensions import db, migrate, limiter
 from .security.csrf import init_csrf
 from .core.errors import error_handler
 #blue print
@@ -15,6 +16,7 @@ from .posts.routes import posts_bp
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
 
     if not app.config["SECRET_KEY"]:
         raise RuntimeError("SECRET_KEY is not set")
@@ -41,6 +43,7 @@ def create_app():
     error_handler(app)
 
     init_csrf(app)
+    limiter.init_app(app)
 
     return app
     
