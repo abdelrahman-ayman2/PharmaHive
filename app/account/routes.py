@@ -5,7 +5,7 @@ import re
 from sqlalchemy.exc import IntegrityError
 #myfunctions
 from ..core.decorators import login_required
-from ..extensions import db
+from ..extensions import db, limiter
 from ..models.user import User
 from ..core.helpers import valid_length
 
@@ -18,6 +18,7 @@ def account():
     return render_template("account/account.html", user=user)
 
 @account_bp.route("/edit", methods=['GET', 'POST'])
+@limiter.limit("10 per hour", methods=["POST"])
 @login_required
 def edit_profile():
     user = g.user
@@ -80,6 +81,7 @@ def edit_profile():
     return render_template("account/edit_profile.html", user=user, form_data=None)
 
 @account_bp.route("/change-password", methods=['GET', 'POST'])
+@limiter.limit("5 per 30 minutes", methods=["POST"])
 @login_required
 def change_password():
     if request.method == 'POST':
@@ -121,6 +123,7 @@ def change_password():
     return render_template("account/change_password.html")
 
 @account_bp.route("/delete", methods=['POST'])
+@limiter.limit("2 per hour", methods=["POST"])
 @login_required
 def delete_account():
     password = request.form.get('password', '')
