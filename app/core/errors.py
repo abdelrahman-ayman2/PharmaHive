@@ -17,3 +17,7 @@ def error_handler(app):
     @app.errorhandler(500)
     def internal_error(error):
         return render_template("errors/500.html"), 500
+    
+    @app.errorhandler(429)
+    def too_many_requests(e):
+        return render_template("errors/429.html"), 429
