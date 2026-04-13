@@ -51,6 +51,10 @@ https://pharmahive.xyz
 * Input validation and safe form handling
 * Protection against open redirects
 * Authorization logic to enforce user ownership of resources
+* **Rate limiting using Flask-Limiter with Redis (Upstash)**
+
+  * Per-route limits for authentication and account endpoints
+  * Global request limiting for general abuse protection
 
 ---
 
@@ -69,6 +73,8 @@ PharmaHive uses **Resend** for sending emails (OTP verification, password reset,
 * SQLAlchemy (ORM)
 * PostgreSQL (Supabase)
 * Flask-Migrate (Alembic)
+* Flask-Limiter (Rate limiting)
+* Redis (Upstash)
 * Jinja2
 * Bootstrap
 * Resend (Email service)
@@ -83,6 +89,7 @@ Create a `.env` file in the root directory:
 SECRET_KEY=your_secret_key
 DATABASE_URL=your_database_url
 RESEND_API_KEY=your_resend_api_key
+RATELIMIT_STORAGE_URI=your_redis_url
 FLASK_ENV=development
 ```
 
@@ -107,13 +114,13 @@ python -m venv venv
 
 #### Activate it:
 
-* **Windows:**
+**Windows:**
 
 ```bash
 venv\Scripts\activate
 ```
 
-* **Mac/Linux:**
+**Mac/Linux:**
 
 ```bash
 source venv/bin/activate
@@ -159,14 +166,23 @@ http://127.0.0.1:5000
 
 ---
 
+## 📌 Notes
+
+* Rate limiting is applied mainly on authentication and sensitive endpoints.
+* Redis (Upstash) is used as a production-ready storage backend for request limiting.
+* Global limits are applied as a soft protection layer against abuse.
+
+---
+
 ## 🔮 Future Improvements
 
 * Comments system for posts
 * About page
 * Admin panel with role-based access control
 * Notification system
-* Rate limiting for auth endpoints
 * Guest browsing support
 * Caching for performance
 * REST API version (possibly FastAPI)
 * UI/UX improvements for content readability
+
+---
