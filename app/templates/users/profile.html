@@ -1,6 +1,10 @@
 {% extends "base.html" %}
 
-{% block title %}Profile | PharmaHive{% endblock %}
+{% block title %}{{ owner.username }} | PharmaHive{% endblock %}
+
+{% block meta %}
+<meta name="description" content="Profile of {{ owner.username }} on PharmaHive">
+{% endblock %}
 
 {% block body_class %}app-shell users-profile-page{% endblock %}
 
@@ -13,13 +17,13 @@
       <div class="app-panel app-panel-soft overflow-hidden">
         <div class="app-panel-cover text-center">
           <div class="profile-avatar mx-auto mb-3">
-            <span>{{ user.username[0]|upper }}</span>
+            <span>{{ owner.username[0]|upper }}</span>
           </div>
 
-          <h2 class="profile-name mb-1">{{ user.username }}</h2>
-          <p class="profile-email mb-2">{{ user.email }}</p>
+          <h2 class="profile-name mb-1">{{ owner.username }}</h2>
+          <p class="profile-email mb-2">{{ owner.email }}</p>
           <p class="profile-bio mb-0">
-            {{ user.bio if user.bio else "No bio added yet." }}
+            {{ owner.bio if owner.bio else "No bio added yet." }}
           </p>
         </div>
 
@@ -27,12 +31,12 @@
           <div class="profile-meta">
             <div class="profile-meta-item">
               <span class="profile-meta-label">Joined</span>
-              <span class="profile-meta-value">{{ user.created_at.strftime('%d %B %Y') }}</span>
+              <span class="profile-meta-value">{{ owner.created_at.strftime('%d %B %Y') }}</span>
             </div>
 
             <div class="profile-meta-item">
               <span class="profile-meta-label">Posts</span>
-              <span class="profile-meta-value">{{ user.posts|length }}</span>
+              <span class="profile-meta-value">{{ owner.posts|length }}</span>
             </div>
 
             <div class="profile-meta-item">
@@ -41,7 +45,7 @@
             </div>
           </div>
 
-          {% if g.user == user %}
+          {% if owner == user %}
           <div class="d-grid mt-4">
             <a href="{{ url_for('account.edit_profile') }}" class="btn app-primary-btn">
               Edit Profile
@@ -58,7 +62,7 @@
         <div class="card-body p-4 p-lg-5 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-4">
           <div>
             <div class="app-section-kicker">Profile Feed</div>
-            <h3 class="app-hero-title app-hero-title-sm mb-2">Posts by {{ user.username }}</h3>
+            <h3 class="app-hero-title app-hero-title-sm mb-2">Posts by {{ owner.username }}</h3>
             <p class="app-hero-text mb-0">
               Thoughts, updates, and content shared by this user.
             </p>
@@ -66,7 +70,7 @@
 
           <div class="app-hero-badge-wrap">
             <div class="app-hero-badge app-hero-badge-sm">
-              <span class="app-hero-badge-number">{{ user.posts|length }}</span>
+              <span class="app-hero-badge-number">{{ owner.posts|length }}</span>
               <span class="app-hero-badge-label">published posts</span>
             </div>
           </div>
@@ -75,8 +79,8 @@
 
       <div class="profile-posts-list d-flex flex-column gap-4">
       <meta name="csrf-token" content="{{ token() }}">
-        {% if user.posts %}
-          {% for post in user.posts %}
+        {% if owner.posts %}
+          {% for post in owner.posts %}
             {% include "partials/_post.html" %}
           {% endfor %}
         {% else %}
