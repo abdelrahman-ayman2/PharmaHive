@@ -25,6 +25,7 @@ https://pharmahive.xyz
   * Username, email, bio, and account creation date
   * Total number of posts
   * All posts created by the user
+* Guest browsing support (view content without authentication)
 * Authorization checks to ensure users can only manage their own data
 * Create, edit, and delete posts
 * Global community feed displaying posts from all users
@@ -180,7 +181,6 @@ http://127.0.0.1:5000
 * About page
 * Admin panel with role-based access control
 * Notification system
-* Guest browsing support
 * Caching for performance
 * REST API version (possibly FastAPI)
 * UI/UX improvements for content readability
