@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, session, url_for, Response
 from datetime import datetime, timezone
+from .helpers import render_sitemap_xml
 from ..models.post import Post
 from ..models.user import User
 from ..models.like import Like
@@ -60,22 +61,6 @@ def sitemap():
 
     xml = render_sitemap_xml(pages)
     return Response(xml, mimetype="application/xml")
-
-
-def render_sitemap_xml(pages):
-    lines = ['<?xml version="1.0" encoding="UTF-8"?>']
-    lines.append('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
-
-    for page in pages:
-        lines.append("  <url>")
-        lines.append(f"    <loc>{page['loc']}</loc>")
-        lines.append(f"    <lastmod>{page['lastmod']}</lastmod>")
-        lines.append(f"    <changefreq>{page['changefreq']}</changefreq>")
-        lines.append(f"    <priority>{page['priority']}</priority>")
-        lines.append("  </url>")
-
-    lines.append("</urlset>")
-    return "\n".join(lines)
 
 @core_bp.route("/robots.txt", methods=["GET"])
 def robots():

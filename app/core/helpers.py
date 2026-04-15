@@ -60,3 +60,18 @@ def is_valid_otp(otp):
         return False
 
     return True
+
+def render_sitemap_xml(pages):
+    lines = ['<?xml version="1.0" encoding="UTF-8"?>']
+    lines.append('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
+
+    for page in pages:
+        lines.append("  <url>")
+        lines.append(f"    <loc>{page['loc']}</loc>")
+        lines.append(f"    <lastmod>{page['lastmod']}</lastmod>")
+        lines.append(f"    <changefreq>{page['changefreq']}</changefreq>")
+        lines.append(f"    <priority>{page['priority']}</priority>")
+        lines.append("  </url>")
+
+    lines.append("</urlset>")
+    return "\n".join(lines)
