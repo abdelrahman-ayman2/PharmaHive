@@ -88,7 +88,7 @@ textareas.forEach((textarea, index) => {
     });
 });
 
-const likes = document.querySelectorAll(".like_update");
+const likes = document.querySelectorAll(".like-btn");
 const csrfMeta = document.querySelector('meta[name="csrf-token"]');
 const csrfToken = csrfMeta ? csrfMeta.getAttribute("content") : null;
 
@@ -104,24 +104,49 @@ function like_update(event) {
     const button = event.currentTarget;
     const postId = button.dataset.postId;
 
+    button.classList.toggle("liked");
     button.disabled = true;
 
     fetch(`/posts/${postId}/like`, {
         method: "POST",
         headers: {
-            "X-CSRFToken": csrfToken
+            "X-CSRFToken": csrfToken,
+            "X-Requested-With": "XMLHttpRequest"
         }
     })
-    .then((res) => res.json())
+    .then((res) => {
+        if (res.status === 401) {
+            button.classList.toggle("liked");
+
+            showToast("Login to like posts");
+            return null;
+        }
+        return res.json();
+    })
     .then((data) => {
+        if (!data) return;
+
         const likesCount = document.getElementById(`likes-${postId}`);
         if (likesCount) {
             likesCount.innerText = data.likes_count;
         }
     })
+    .catch(() => {
+        button.classList.toggle("liked");
+    })
     .finally(() => {
-        button.disabled = false;
+    button.disabled = false;
     });
+}
+
+function showToast(message) {
+  const toast = document.getElementById("toast");
+  toast.textContent = message;
+  toast.classList.add("show");
+
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, 2500);
 }
 
 document.addEventListener("DOMContentLoaded", () => {

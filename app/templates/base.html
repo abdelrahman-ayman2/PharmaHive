@@ -46,6 +46,20 @@
                             </form>
                         </li>
                     </ul>
+                    {% else %}
+                    <ul class="navbar-nav app-nav-links ms-auto mb-2 mb-lg-0 align-items-lg-center gap-lg-2">
+                        <li class="nav-item">
+                            <a href="{{ url_for('auth.login') }}" class="btn app-nav-logout-btn">
+                                Login
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="{{ url_for('auth.register') }}" class="btn app-nav-logout-btn">
+                                Register
+                            </a>
+                        </li>
+                    </ul>
                     {% endif %}
                 {% endblock %}
             </div>

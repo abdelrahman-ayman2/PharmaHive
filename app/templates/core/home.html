@@ -80,6 +80,7 @@
         </div>
       </section>
 
+      {% if user %}
       <div class="app-panel create-post-card mb-4">
         <div class="card-body p-4 p-lg-4">
           <form method="POST" action="{{ url_for('posts.create') }}">
@@ -119,6 +120,7 @@
           </form>
         </div>
       </div>
+      {% endif %}
 
       <section class="d-flex flex-column gap-4">
       <meta name="csrf-token" content="{{ token() }}">
