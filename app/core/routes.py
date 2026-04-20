@@ -64,9 +64,7 @@ def sitemap():
 
 @core_bp.route("/robots.txt", methods=["GET"])
 def robots():
-    content = f"""User-agent: *
-Allow: /
-
-Sitemap: {url_for('core.sitemap', _external=True)}
-"""
-    return Response(content, mimetype="text/plain")
+    return Response(
+        "User-agent: *\nAllow: /\n",
+        mimetype="text/plain"
+    )
