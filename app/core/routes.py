@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, session, url_for, Response
+from xml.etree.ElementTree import Element, SubElement, tostring
 from datetime import datetime, timezone
-from .helpers import render_sitemap_xml
 from ..models.post import Post
 from ..models.user import User
 from ..models.like import Like
@@ -42,29 +42,34 @@ def sitemap():
             "loc": url_for(endpoint, _external=True, **values),
             "lastmod": datetime.now(timezone.utc).date().isoformat(),
             "changefreq": "daily",
-            "priority": "1.0" if endpoint == "core.home" else "0.8"
+            "priority": "1.0" if endpoint == "core.home" else "0.3"
         })
 
     users = db.session.query(User.username, User.created_at).all()
     for username, created_at in users:
-        lastmod = (
-            created_at.date().isoformat()
-            if created_at else datetime.now(timezone.utc).date().isoformat()
-        )
-
         pages.append({
             "loc": url_for("users.profile", username=username, _external=True),
-            "lastmod": lastmod,
+            "lastmod": (created_at.date().isoformat() if created_at else ""),
             "changefreq": "weekly",
             "priority": "0.7"
         })
 
-    xml = render_sitemap_xml(pages)
+    urlset = Element('urlset', xmlns="http://www.sitemaps.org/schemas/sitemap/0.9")
+
+    for page in pages:
+        url = SubElement(urlset, 'url')
+        SubElement(url, 'loc').text = page["loc"]
+        SubElement(url, 'lastmod').text = page["lastmod"]
+        SubElement(url, 'changefreq').text = page["changefreq"]
+        SubElement(url, 'priority').text = page["priority"]
+
+    xml = tostring(urlset, encoding='utf-8', method='xml')
+
     return Response(xml, mimetype="application/xml")
 
 @core_bp.route("/robots.txt", methods=["GET"])
 def robots():
     return Response(
-        "User-agent: *\nAllow: /\n",
+        "User-agent: *\nAllow: /\nSitemap: https://pharmahive.xyz/sitemap.xml\n",
         mimetype="text/plain"
     )
