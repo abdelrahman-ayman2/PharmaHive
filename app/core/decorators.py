@@ -1,4 +1,4 @@
-from flask import url_for, session, redirect, g, request, jsonify
+from flask import url_for, session, redirect, g, request, jsonify, make_response
 from functools import wraps
 from ..models.user import User
 from ..extensions import db
@@ -29,3 +29,19 @@ def handle_unauthorized():
 
     # fallback (HTML)
     return redirect(url_for("auth.login"))
+
+def no_cache(f):
+    @wraps(f)
+    def decorator_function(*args, **kwargs):
+        response = make_response(f(*args, **kwargs))
+
+        response.headers["Cache-Control"] = (
+            "no-store, no-cache, must-revalidate, max-age=0"
+        )
+
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+
+        return response
+    
+    return decorator_function
