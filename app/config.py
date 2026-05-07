@@ -5,9 +5,11 @@ load_dotenv()
 
 class Config:
     SECRET_KEY = os.getenv("SECRET_KEY")
+
+    FLASK_ENV = os.getenv("FLASK_ENV", "development")
+    IS_PRODUCTION = FLASK_ENV == "production"
     
     DATABASE_URL = os.getenv("DATABASE_URL")
-
     storage_uri = os.getenv("RATELIMIT_STORAGE_URI")
 
     if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
@@ -22,7 +24,7 @@ class Config:
 
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
-    SESSION_COOKIE_SECURE = os.getenv("FLASK_ENV") == "production"
+    SESSION_COOKIE_SECURE = IS_PRODUCTION
 
     CSP = (
         "default-src 'self'; "
