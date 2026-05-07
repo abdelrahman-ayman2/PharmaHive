@@ -4,7 +4,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 import re
 from sqlalchemy.exc import IntegrityError
 #myfunctions
-from ..core.decorators import login_required
+from ..core.decorators import login_required, no_cache
 from ..extensions import db, limiter
 from ..models.user import User
 from ..core.helpers import valid_length
@@ -13,6 +13,7 @@ account_bp = Blueprint('account', __name__, url_prefix='/account')
 
 @account_bp.route("/")
 @login_required
+@no_cache
 def account():
     user = g.user
     return render_template("account/account.html", user=user)
@@ -20,6 +21,7 @@ def account():
 @account_bp.route("/edit", methods=['GET', 'POST'])
 @limiter.limit("10 per hour", methods=["POST"])
 @login_required
+@no_cache
 def edit_profile():
     user = g.user
 
@@ -83,6 +85,7 @@ def edit_profile():
 @account_bp.route("/change-password", methods=['GET', 'POST'])
 @limiter.limit("5 per 30 minutes", methods=["POST"])
 @login_required
+@no_cache
 def change_password():
     if request.method == 'POST':
 

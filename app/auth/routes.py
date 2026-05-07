@@ -5,7 +5,7 @@ import re
 from datetime import datetime, timedelta
 from sqlalchemy.exc import IntegrityError
 #my functions
-from ..core.decorators import login_required
+from ..core.decorators import login_required, no_cache
 from ..extensions import limiter
 from ..extensions import db
 from ..models.user import User
@@ -22,6 +22,7 @@ def auth_index():
 #login
 @auth_bp.route('/login', methods=['GET', 'POST'])
 @limiter.limit("5 per 10 minutes", methods=["POST"])
+@no_cache
 def login():
     if session.get("user_id"):
         return redirect(url_for("core.home"))
@@ -50,6 +51,7 @@ def login():
 #register
 @auth_bp.route('/register', methods=['GET', 'POST'])
 @limiter.limit("3 per hour", methods=["POST"])
+@no_cache
 def register():
     if session.get("user_id"):
         return redirect(url_for("core.home"))
@@ -130,6 +132,7 @@ def logout():
 
 @auth_bp.route("/forgot-password", methods=['POST', 'GET']) 
 @limiter.limit("3 per 15 minutes", methods=["POST"])
+@no_cache
 def forgot_password():
     if request.method == 'POST':
         email = request.form.get("email")
@@ -162,6 +165,7 @@ def forgot_password():
 
 @auth_bp.route("/verify-otp", methods=['POST', 'GET']) 
 @limiter.limit("5 per 10 minutes", methods=["POST"])
+@no_cache
 def verify_otp():
     if request.method == 'POST':
         input_otp = request.form.get("otp")
@@ -213,6 +217,7 @@ def verify_otp():
 
 @auth_bp.route("/reset-password", methods=['POST', 'GET'])
 @limiter.limit("3 per 15 minutes", methods=["POST"])
+@no_cache
 def reset_password():
     if not session.get("reset_allowed") or not session.get("reset_user_id") or not session.get("reset_expires_at"):
         flash("Invalid or expired reset session.", "danger")
