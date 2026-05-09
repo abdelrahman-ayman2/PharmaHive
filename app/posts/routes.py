@@ -42,7 +42,9 @@ def create():
 @login_required
 def delete(post_id):
 
-    post = Post.query.get_or_404(post_id)
+    post = db.session.get(Post, post_id)
+    if post is None:
+        abort(404)
 
     next_page = request.form.get("next_page")
 
@@ -66,7 +68,9 @@ def delete(post_id):
 @posts_bp.route('/<int:post_id>/edit', methods=['GET', 'POST'])
 @login_required
 def edit(post_id):
-    post = Post.query.get_or_404(post_id)
+    post = db.session.get(Post, post_id)
+    if post is None:
+        abort(404)
     if g.user.id != post.user_id:
         flash("You are not allowed to edit this post.", "danger")
         return redirect(url_for("core.home"))
