@@ -1,5 +1,6 @@
 from flask import Blueprint, redirect, g, url_for, request, flash, render_template, abort
 from urllib.parse import urlparse
+from sqlalchemy import update
 from ..core.decorators import login_required
 from ..core.helpers import valid_length, is_safe_url
 from ..models.post import Post
@@ -114,19 +115,38 @@ def like(post_id):
         abort(404) 
 
     user = g.user
-    like = db.session.get(Like, (post.id, user.id))
+    existing_like = db.session.get(Like, (post.id, user.id))
 
-    if like is not None:
-        db.session.delete(like)
-        post.likes_count -= 1
-    else:
-        like = Like(post_id=post.id, user_id=user.id)
-        db.session.add(like)
-        post.likes_count += 1
+    try:
+        if existing_like is not None:
+            db.session.delete(existing_like)
+            db.session.execute(
+                    update(Post)
+                    .where(Post.id == post.id)
+                    .values(likes_count=Post.likes_count - 1)
+                )
+            liked = False
+        else:
+            new_like = Like(post_id=post.id, user_id=user.id)
+            db.session.add(new_like)
+            db.session.execute(
+                    update(Post)
+                    .where(Post.id == post.id)
+                    .values(likes_count=Post.likes_count + 1)
+                )
+            
+            liked = True
 
-    db.session.commit()
+        db.session.commit()
+        db.session.refresh(post)
+        
+    except Exception as e:
+        db.session.rollback()
+        print("LIKE ERROR:", repr(e))
+        return {"error": "Something went wrong"}, 500
 
     return {
-        "likes_count": post.likes_count
+        "likes_count": post.likes_count,
+        "liked": liked
     }
 
