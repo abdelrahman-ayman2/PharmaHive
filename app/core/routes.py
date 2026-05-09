@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, session, url_for, Response
 from xml.etree.ElementTree import Element, SubElement, tostring
 from datetime import datetime, timezone
+from ..extensions import limiter
 from ..models.post import Post
 from ..models.user import User
 from ..models.like import Like
@@ -28,6 +29,7 @@ def home():
     return render_template('core/home.html', posts=posts, user=user, liked_post_ids=liked_post_ids)
 
 @core_bp.route("/sitemap.xml", methods=["GET"])
+@limiter.exempt
 def sitemap():
     pages = []
 
@@ -64,12 +66,14 @@ def sitemap():
         SubElement(url, 'priority').text = page["priority"]
 
     xml = tostring(urlset, encoding='utf-8', method='xml')
-
+    xml = b'<?xml version="1.0" encoding="UTF-8"?>\n' + xml
+    
     return Response(xml, mimetype="application/xml")
 
 @core_bp.route("/robots.txt", methods=["GET"])
+@limiter.exempt
 def robots():
     return Response(
-        "User-agent: *\nAllow: /\nSitemap: https://pharmahive.xyz/sitemap.xml\n",
+        "User-agent: *\nAllow: /\nSitemap: https://www.pharmahive.xyz/sitemap.xml\n",
         mimetype="text/plain"
     )
