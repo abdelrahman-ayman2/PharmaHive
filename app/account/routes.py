@@ -12,16 +12,16 @@ from ..core.helpers import valid_length
 account_bp = Blueprint('account', __name__, url_prefix='/account')
 
 @account_bp.route("/")
-@login_required
 @no_cache
+@login_required
 def account():
     user = g.user
     return render_template("account/account.html", user=user)
 
 @account_bp.route("/edit", methods=['GET', 'POST'])
 @limiter.limit("10 per hour", methods=["POST"])
-@login_required
 @no_cache
+@login_required
 def edit_profile():
     user = g.user
 
@@ -84,8 +84,8 @@ def edit_profile():
 
 @account_bp.route("/change-password", methods=['GET', 'POST'])
 @limiter.limit("5 per 30 minutes", methods=["POST"])
-@login_required
 @no_cache
+@login_required
 def change_password():
     if request.method == 'POST':
 
@@ -115,10 +115,14 @@ def change_password():
         user = g.user
 
         if check_password_hash(user.password_hash, password):
-            user.password_hash = generate_password_hash(new_password)
-            db.session.commit()
-            flash("Password changed successfully", "success")
-            return redirect(url_for("account.account"))
+            try:
+                user.password_hash = generate_password_hash(new_password)
+                db.session.commit()
+
+            except Exception:
+                db.session.rollback()
+                flash("Something went wrong while changing the password.", "danger")
+                return redirect(url_for("account.change_password"))           
         else:
             flash("Current password is incorrect", "danger")
             return redirect(url_for("account.change_password"))
