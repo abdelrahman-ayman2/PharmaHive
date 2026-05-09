@@ -15,4 +15,6 @@ class Post(db.Model):
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False, index=True)
 
+    likes = db.relationship("Like", back_populates="post", cascade="all, delete-orphan")
+
     user = db.relationship("User", back_populates="posts")
