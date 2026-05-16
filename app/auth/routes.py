@@ -2,6 +2,7 @@
 from flask import Blueprint, redirect, render_template, request, session, url_for, flash
 from werkzeug.security import check_password_hash, generate_password_hash
 import re
+from secrets import token_hex
 from datetime import datetime, timedelta
 from sqlalchemy.exc import IntegrityError
 #my functions
@@ -40,6 +41,7 @@ def login():
         if user and check_password_hash(user.password_hash, password):
             session.clear()
             session["user_id"] = user.id
+            session["csrf_token"] = token_hex(32)
             flash("Logged in successfully.", "success")
             return redirect(url_for("core.home"))
         else:
