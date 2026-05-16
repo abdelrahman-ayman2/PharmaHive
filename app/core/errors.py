@@ -1,9 +1,11 @@
-from flask import render_template
+from flask import render_template, redirect, session, url_for
 
 def error_handler(app):
 
     @app.errorhandler(400)
     def bad_request(error):
+        if session.get("user_id"):
+            return redirect(url_for("core.home"))
         return render_template("errors/400.html"), 400
 
     @app.errorhandler(403)

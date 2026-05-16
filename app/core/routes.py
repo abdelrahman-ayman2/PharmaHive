@@ -6,8 +6,8 @@ from ..models.post import Post
 from ..models.user import User
 from ..models.like import Like
 from ..extensions import db
-core_bp = Blueprint('core', __name__)
 
+core_bp = Blueprint('core', __name__)
 
 @core_bp.route('/')
 def home():
