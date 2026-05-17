@@ -6,7 +6,7 @@ from secrets import token_hex
 from datetime import datetime, timedelta
 from sqlalchemy.exc import IntegrityError
 #my functions
-from services import authenticate_user
+from .services import authenticate_user
 from ..core.decorators import login_required, no_cache
 from ..extensions import limiter
 from ..extensions import db
@@ -42,7 +42,7 @@ def login():
         session.clear()
         session["user_id"] = result.user.id
         session["csrf_token"] = token_hex(32)
-        
+
         flash(result.message, "success")
         return redirect(url_for("core.home"))
 
