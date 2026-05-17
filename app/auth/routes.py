@@ -6,6 +6,7 @@ from secrets import token_hex
 from datetime import datetime, timedelta
 from sqlalchemy.exc import IntegrityError
 #my functions
+from services import authenticate_user
 from ..core.decorators import login_required, no_cache
 from ..extensions import limiter
 from ..extensions import db
@@ -32,21 +33,18 @@ def login():
         email = request.form.get("email", '').strip().lower()
         password = request.form.get("password", '')
 
-        if not all([email, password]):
-            flash("All fields are required", "danger")
+        result = authenticate_user(email, password)
+
+        if not result.success:
+            flash(result.message, "danger")
             return render_template("auth/login.html", form_data={"email": email})
         
-        user = User.query.filter_by(email=email).first()
-
-        if user and check_password_hash(user.password_hash, password):
-            session.clear()
-            session["user_id"] = user.id
-            session["csrf_token"] = token_hex(32)
-            flash("Logged in successfully.", "success")
-            return redirect(url_for("core.home"))
-        else:
-            flash("Invalid email or password", "danger")
-            return render_template("auth/login.html", form_data={"email": email})
+        session.clear()
+        session["user_id"] = result.user.id
+        session["csrf_token"] = token_hex(32)
+        
+        flash(result.message, "success")
+        return redirect(url_for("core.home"))
 
     return render_template('auth/login.html')
 
