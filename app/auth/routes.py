@@ -1,6 +1,6 @@
 #python
 from flask import Blueprint, redirect, render_template, request, session, url_for, flash
-from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.security import generate_password_hash
 import re
 from secrets import token_hex
 from datetime import datetime, timedelta
