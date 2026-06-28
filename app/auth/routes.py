@@ -6,7 +6,7 @@ from secrets import token_hex
 from datetime import datetime, timedelta
 from sqlalchemy.exc import IntegrityError
 #my functions
-from .services import authenticate_user
+from .services import authenticate_user, register_user, request_password_reset
 from ..core.decorators import login_required, no_cache
 from ..extensions import limiter
 from ..extensions import db
@@ -40,7 +40,7 @@ def login():
             return render_template("auth/login.html", form_data={"email": email})
         
         session.clear()
-        session["user_id"] = result.user.id
+        session["user_id"] = result.data.id
         session["csrf_token"] = token_hex(32)
 
         flash(result.message, "success")
@@ -62,62 +62,18 @@ def register():
         password = request.form.get('password', '')
         confirm_password = request.form.get('confirm_password', '')
 
+        result = register_user(username, email, password, confirm_password)
+
         form_data={
                     "username" : username,
                     "email" : email,
                 }
+        
+        if not result.success:
+            flash(result.message, "danger")
+            return render_template('auth/register.html', form_data=form_data)
 
-        if not all([username, email, password, confirm_password]):
-            flash("All fields are required", "danger")
-            return render_template('auth/register.html', form_data=form_data)
-        
-        is_valid, error = valid_length(username, 3, 64, "Username")
-        if not is_valid:
-            flash(error, "danger")
-            return render_template('auth/register.html', form_data=form_data)
-        
-        is_valid, error = valid_length(email, 6, 254, "Email")
-        if not is_valid:
-            flash(error, "danger")
-            return render_template('auth/register.html', form_data=form_data)
-        
-        is_valid, error = valid_length(password, 8, 128, "Password")
-        if not is_valid:
-            flash(error, "danger")
-            return render_template('auth/register.html', form_data=form_data)
-        
-        if password != confirm_password:
-            flash("Passwords do not match", "danger")
-            return render_template('auth/register.html', form_data=form_data)
-        
-        email_pattern = r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
-
-        if not re.fullmatch(email_pattern, email):
-            flash("Invalid email format", "danger")
-            return render_template('auth/register.html', form_data=form_data)
-        
-        pattern = r"^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).+$"
-
-        if not re.fullmatch(pattern, password):
-            flash("Password must be at least 8 characters, contain one uppercase letter and one special character.", "danger")
-            return render_template('auth/register.html', form_data=form_data)
-        
-        password_hash = generate_password_hash(password)
-        
-        user = User(
-            username=username,
-            email=email,
-            password_hash=password_hash
-        )
-        try:
-            db.session.add(user)
-            db.session.commit()
-        except IntegrityError:
-            db.session.rollback()
-            flash("Username or email already exists", "danger")
-            return render_template('auth/register.html', form_data=form_data)
-        
-        flash("Account created successfully", "success")
+        flash(result.message, "success")
         return redirect(url_for("auth.login"))
     
     return render_template('auth/register.html', form_data=None)
@@ -136,31 +92,17 @@ def logout():
 def forgot_password():
     if request.method == 'POST':
         email = request.form.get("email")
-        user = User.query.filter_by(email=email).first()
 
-        try:
-            if user is not None:
-                otp = send_otp_email(email)
-                session["otp_email"] = email
+        result = request_password_reset(email)
 
-                Otp.query.filter_by(user_id=user.id).delete()
-
-                new_otp = Otp(
-                    otp=otp,
-                    user_id=user.id
-                )
-
-                db.session.add(new_otp)
-                db.session.commit()
-        
-            flash("If an account with that email exists, a verification code has been sent.", "info")
-            return redirect(url_for("auth.verify_otp"))
-        except Exception as e:
-            db.session.rollback()
-            print("FORGOT ERROR:", repr(e))
-            flash("Something went wrong. Please try again.", "danger")
+        if not result.success:
+            flash(result.message, "danger")
             return render_template("auth/forgot_password.html"), 500
         
+        flash(result.message, "info")
+        session["otp_email"] = email
+        return redirect(url_for("auth.verify_otp"))
+
     return render_template('auth/forgot_password.html')
 
 @auth_bp.route("/verify-otp", methods=['POST', 'GET']) 

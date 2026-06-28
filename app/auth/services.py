@@ -3,12 +3,13 @@ import re
 from sqlalchemy.exc import IntegrityError
 from ..extensions import db
 from ..models.user import User
-from ..core.helpers import valid_length
+from ..models.otp import Otp
+from ..core.helpers import valid_length, send_otp_email
 
 class ServiceResult:
-    def __init__(self, success, user=None, message=None):
+    def __init__(self, success, data=None, message=None):
         self.success = success
-        self.user = user
+        self.data = data
         self.message = message
 
 def authenticate_user(email, password):
@@ -28,7 +29,7 @@ def authenticate_user(email, password):
     
     return ServiceResult(
         success=True,
-        user=user,
+        data=user,
         message="Logged in successfully."
     )
 
@@ -95,3 +96,42 @@ def register_user(username, email, password, confirm_password):
         db.session.commit()
     except IntegrityError:
         db.session.rollback()
+        return ServiceResult(
+            success=False,
+            message="Username or email already exists"
+        )
+
+    return ServiceResult(
+        success=True,
+        message="Account created successfully"
+    )
+
+def request_password_reset(email):
+    user = User.query.filter_by(email=email).first()
+
+    try:
+        if user is not None:
+            otp = send_otp_email(email)
+    
+            Otp.query.filter_by(user_id=user.id).delete()
+    
+            new_otp = Otp(
+                otp=otp,
+                user_id=user.id
+            )
+    
+            db.session.add(new_otp)
+            db.session.commit()
+        
+        return ServiceResult(
+            success=True,
+            message="If an account with that email exists, a verification code has been sent."
+        )
+    except Exception as e:
+            db.session.rollback()
+            print("FORGOT ERROR:", repr(e))
+
+            return ServiceResult(
+                success=False,
+                message="Something went wrong. Please try again."
+            )
