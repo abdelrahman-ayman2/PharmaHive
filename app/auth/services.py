@@ -187,7 +187,7 @@ def verify_reset_otp(email, input_otp):
             message="Something went wrong. Please try again."
         )
 
-def reset_user_password(password, confirm_password, user_id):
+def reset_user_password(user_id, password, confirm_password):
     if not all([password, confirm_password]):
         return ServiceResult(
             success=False,
@@ -237,6 +237,4 @@ def reset_user_password(password, confirm_password, user_id):
         return ServiceResult(
             success=False,
             message="Something went wrong. Please try again."
-        )
-    
-    
+        ) 

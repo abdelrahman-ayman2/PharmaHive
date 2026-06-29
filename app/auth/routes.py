@@ -152,7 +152,7 @@ def reset_password():
         password = request.form.get('password', '')
         confirm_password = request.form.get('confirm_password', '')
 
-        result = reset_user_password(password, confirm_password, session["reset_user_id"])
+        result = reset_user_password(session["reset_user_id"], password, confirm_password)
 
         if not result.success:
             flash(result.message, "danger")
