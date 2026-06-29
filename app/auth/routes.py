@@ -6,7 +6,7 @@ from secrets import token_hex
 from datetime import datetime, timedelta
 from sqlalchemy.exc import IntegrityError
 #my functions
-from .services import authenticate_user, register_user, request_password_reset, verify_reset_otp
+from .services import authenticate_user, register_user, request_password_reset, verify_reset_otp, reset_user_password
 from ..core.decorators import login_required, no_cache
 from ..extensions import limiter
 from ..extensions import db
@@ -152,46 +152,17 @@ def reset_password():
         password = request.form.get('password', '')
         confirm_password = request.form.get('confirm_password', '')
 
-        if not all([password, confirm_password]):
-            flash("All fields are required", "danger")
-            return render_template('auth/reset_password.html')
-        
-        is_valid, error = valid_length(password, 8, 128, "Password")
-        if not is_valid:
-            flash(error, "danger")
-            return render_template('auth/reset_password.html')
-        
-        if password != confirm_password:
-            flash("Passwords do not match", "danger")
-            return render_template('auth/reset_password.html')
-        
-        pattern = r"^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).+$"
+        result = reset_user_password(password, confirm_password, session["reset_user_id"])
 
-        if not re.fullmatch(pattern, password):
-            flash("Password must be at least 8 characters, contain one uppercase letter and one special character.", "danger")
+        if not result.success:
+            flash(result.message, "danger")
             return render_template('auth/reset_password.html')
-
-        user = User.query.get(session.get("reset_user_id"))
-        if not user:
-            flash("Invalid or expired reset session.", "danger")
-            return redirect(url_for("auth.forgot_password"))
-        
-        password_hash = generate_password_hash(password)
-        user.password_hash = password_hash
-
-        try:
-            db.session.commit()
-        except Exception as e:
-            db.session.rollback()
-            print("RESET PASSWORD ERROR:", repr(e))
-            flash("Something went wrong. Please try again.", "danger")
-            return render_template("auth/reset_password.html"), 500
         
         session.pop("reset_allowed", None)
         session.pop("reset_expires_at", None)
         session.pop("reset_user_id", None)
 
-        flash("Password changed successfully", "success")
+        flash(result.message, "success")
         return redirect(url_for("auth.login"))
 
     return render_template('auth/reset_password.html')

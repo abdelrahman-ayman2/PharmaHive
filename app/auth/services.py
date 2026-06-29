@@ -1,5 +1,6 @@
 from werkzeug.security import check_password_hash, generate_password_hash
 import re
+from datetime import datetime
 from sqlalchemy.exc import IntegrityError
 from ..extensions import db
 from ..models.user import User
@@ -185,3 +186,57 @@ def verify_reset_otp(email, input_otp):
             success=False,
             message="Something went wrong. Please try again."
         )
+
+def reset_user_password(password, confirm_password, user_id):
+    if not all([password, confirm_password]):
+        return ServiceResult(
+            success=False,
+            message="All fields are required"
+        )
+
+    is_valid, error = valid_length(password, 8, 128, "Password")
+    if not is_valid:
+        return ServiceResult(
+            success=False,
+            message=error
+        )
+
+    if password != confirm_password:
+        return ServiceResult(
+            success=False,
+            message="Passwords do not match"
+        )
+
+    pattern = r"^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).+$"
+
+    if not re.fullmatch(pattern, password):
+        return ServiceResult(
+            success=False,
+            message="Password must be at least 8 characters, contain one uppercase letter and one special character."
+        )
+
+    user = User.query.get(user_id)
+    if not user:
+        return ServiceResult(
+            success=False,
+            message="Invalid or expired reset session."
+        )
+
+    password_hash = generate_password_hash(password)
+    user.password_hash = password_hash
+
+    try:
+        db.session.commit()
+        return ServiceResult(
+            success=True,
+            message="Password changed successfully"
+        )
+    except Exception as e:
+        db.session.rollback()
+        print("RESET PASSWORD ERROR:", repr(e))
+        return ServiceResult(
+            success=False,
+            message="Something went wrong. Please try again."
+        )
+    
+    
