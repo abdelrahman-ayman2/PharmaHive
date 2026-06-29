@@ -4,7 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from ..extensions import db
 from ..models.user import User
 from ..models.otp import Otp
-from ..core.helpers import valid_length, send_otp_email
+from ..core.helpers import valid_length, send_otp_email, is_valid_otp
 
 class ServiceResult:
     def __init__(self, success, data=None, message=None):
@@ -135,3 +135,53 @@ def request_password_reset(email):
                 success=False,
                 message="Something went wrong. Please try again."
             )
+
+def verify_reset_otp(email, input_otp):
+    if not input_otp:
+        return ServiceResult(
+            success=False,
+            message="Please enter the verification code."
+        )
+
+    if not email:
+        return ServiceResult(
+            success=False,
+            message="Invalid or expired code"
+        )
+
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        return ServiceResult(
+            success=False,
+            message="Invalid or expired code"
+        )
+
+    db_otp = Otp.query.filter_by(user_id=user.id).first()
+
+    if not is_valid_otp(db_otp):
+        return ServiceResult(
+            success=False,
+            message="Invalid or expired code"
+        )
+
+    if db_otp.otp != input_otp:
+        return ServiceResult(
+            success=False,
+            message="Invalid or expired code"
+        )
+
+    try:
+        db.session.delete(db_otp)
+        db.session.commit()
+        return ServiceResult(
+            success=True,
+            data=user,
+            message="Code verified successfully."
+        )
+    except Exception as e:
+        db.session.rollback()
+        print("VERIFY ERROR:", repr(e))
+        return ServiceResult(
+            success=False,
+            message="Something went wrong. Please try again."
+        )

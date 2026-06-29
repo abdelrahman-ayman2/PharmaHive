@@ -6,13 +6,13 @@ from secrets import token_hex
 from datetime import datetime, timedelta
 from sqlalchemy.exc import IntegrityError
 #my functions
-from .services import authenticate_user, register_user, request_password_reset
+from .services import authenticate_user, register_user, request_password_reset, verify_reset_otp
 from ..core.decorators import login_required, no_cache
 from ..extensions import limiter
 from ..extensions import db
 from ..models.user import User
 from ..models.otp import Otp
-from ..core.helpers import valid_length, send_otp_email, is_valid_otp
+from ..core.helpers import valid_length, is_valid_otp
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -112,47 +112,21 @@ def verify_otp():
     if request.method == 'POST':
         input_otp = request.form.get("otp")
 
-        if not input_otp:
-            flash("Please enter the verification code.", "danger")
-            return render_template("auth/verify_otp.html")
-
         email = session.get("otp_email")
-            
-        if not email:
-            flash("Invalid or expired code", "danger")
-            return render_template("auth/verify_otp.html")
-        
-        user = User.query.filter_by(email=email).first()
-        if not user:
-            flash("Invalid or expired code", "danger")
-            return render_template("auth/verify_otp.html")
 
-        db_otp = Otp.query.filter_by(user_id=user.id).first()
-            
-        if not is_valid_otp(db_otp):
-            flash("Invalid or expired code", "danger")
+        result = verify_reset_otp(email, input_otp)
+
+        if not result.success:
+            flash(result.message, "danger")
             return render_template("auth/verify_otp.html")
         
-        if db_otp.otp != input_otp:
-            flash("Invalid or expired code", "danger")
-            return render_template("auth/verify_otp.html")
-        
-        try:
-            db.session.delete(db_otp)
-            db.session.commit()
-        except Exception as e:
-            db.session.rollback()
-            print("VERIFY ERROR:", repr(e))
-            flash("Something went wrong. Please try again.", "danger")
-            return render_template("auth/verify_otp.html"), 500
-        
-        session["reset_user_id"] = user.id
+        session["reset_user_id"] = result.data.id
         session["reset_allowed"] = True
         session["reset_expires_at"] = (datetime.utcnow() + timedelta(minutes=10)).isoformat()
 
         session.pop("otp_email", None)
 
-        flash("Code verified successfully.", "success")
+        flash(result.message, "success")
         return redirect(url_for("auth.reset_password"))
     
     return render_template('auth/verify_otp.html')
