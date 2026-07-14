@@ -6,7 +6,7 @@ from ..core.helpers import valid_length, is_safe_url
 from ..models.post import Post
 from ..models.like import Like
 from ..extensions import db
-from .services import create_post
+from .services import create_post, delete_post
 
 posts_bp = Blueprint('posts', __name__, url_prefix='/posts')
 
@@ -18,7 +18,7 @@ def create():
 
     result = create_post(g.user.id, content)
 
-    if result.success == False:
+    if not result.success:
         flash(result.message, "danger")
         return redirect(url_for("core.home"))
 
@@ -28,28 +28,22 @@ def create():
 @posts_bp.route('/<int:post_id>/delete', methods=['POST'])
 @login_required
 def delete(post_id):
-
-    post = db.session.get(Post, post_id)
-    if post is None:
-        abort(404)
-
     next_page = request.form.get("next_page")
-
     if not next_page or not is_safe_url(next_page):
         next_page = url_for("core.home")
 
-    if g.user.id != post.user_id:
+    result = delete_post(post_id, g.user.id)
+
+    if result.code == 404:
+        abort(404)
+    if result.code == 403:
         abort(403)
-        
-    try:
-        db.session.delete(post)
-        db.session.commit()
-    except Exception:
-        db.session.rollback()
-        flash("Something went wrong while deleting the post.", "danger")
+
+    if not result.success:
+        flash(result.message, "danger")
         return redirect(next_page)
-    
-    flash("Post deleted successfully.", "success")
+
+    flash(result.message, "success")
     return redirect(next_page)
 
 @posts_bp.route('/<int:post_id>/edit', methods=['GET', 'POST'])
