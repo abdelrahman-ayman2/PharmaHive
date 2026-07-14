@@ -1,18 +1,11 @@
 #python
 from flask import Blueprint, redirect, render_template, request, session, url_for, flash
-from werkzeug.security import generate_password_hash
-import re
 from secrets import token_hex
 from datetime import datetime, timedelta
-from sqlalchemy.exc import IntegrityError
 #my functions
 from .services import authenticate_user, register_user, request_password_reset, verify_reset_otp, reset_user_password
 from ..core.decorators import login_required, no_cache
 from ..extensions import limiter
-from ..extensions import db
-from ..models.user import User
-from ..models.otp import Otp
-from ..core.helpers import valid_length, is_valid_otp
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
