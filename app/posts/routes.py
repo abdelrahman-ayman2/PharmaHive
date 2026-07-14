@@ -6,7 +6,7 @@ from ..core.helpers import valid_length, is_safe_url
 from ..models.post import Post
 from ..models.like import Like
 from ..extensions import db
-from sqlalchemy.exc import IntegrityError
+from .services import create_post
 
 posts_bp = Blueprint('posts', __name__, url_prefix='/posts')
 
@@ -15,28 +15,14 @@ posts_bp = Blueprint('posts', __name__, url_prefix='/posts')
 def create():
     
     content = request.form.get("content", "").strip()
-    if not content:
-        flash("Post cannot be empty", "danger")
+
+    result = create_post(g.user.id, content)
+
+    if result.success == False:
+        flash(result.message, "danger")
         return redirect(url_for("core.home"))
-    
-    is_valid, error = valid_length(content, 1, 280, "content")
-    if not is_valid:
-        flash(error, "danger")
-        return redirect(url_for("core.home"))
-    
-    post = Post(
-        content=content,
-        user_id=g.user.id
-    )
-    try:
-        db.session.add(post)
-        db.session.commit()
-    except IntegrityError:
-        db.session.rollback()
-        flash("Something went wrong while creating the post.", "danger")
-        return redirect(url_for("core.home"))
-    
-    flash("Post created successfully.", "success")
+
+    flash(result.message, "success")
     return redirect(url_for("core.home"))
 
 @posts_bp.route('/<int:post_id>/delete', methods=['POST'])
