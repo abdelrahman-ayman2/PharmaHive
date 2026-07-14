@@ -84,7 +84,7 @@ def logout():
 @no_cache
 def forgot_password():
     if request.method == 'POST':
-        email = request.form.get("email")
+        email = request.form.get("email", "").strip().lower()
 
         result = request_password_reset(email)
 

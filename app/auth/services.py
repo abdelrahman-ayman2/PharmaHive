@@ -215,7 +215,7 @@ def reset_user_password(user_id, password, confirm_password):
             message="Password must be at least 8 characters, contain one uppercase letter and one special character."
         )
 
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         return ServiceResult(
             success=False,
